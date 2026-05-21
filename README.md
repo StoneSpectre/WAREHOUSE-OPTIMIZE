@@ -1,8 +1,8 @@
-# Pan-India Logistics Optimization Dashboard 🚀
+# Pan-India Logistics Optimization Dashboard 
 
 This repository contains a full-stack, enterprise-grade Decision Support System (DSS) for optimizing supply chain networks across India. It solves a **Capacitated Facility Location Problem (CFLP)** to determine the optimal subset of warehouses to open, minimizing both fixed operational costs and variable transportation costs while strictly respecting physical capacity constraints at each hub.
 
-## 🌟 Key Features
+##  Key Features
 
 * **Mathematical Optimization Engine:** Uses Mixed-Integer Linear Programming (MILP) to solve the NP-Hard facility location problem, mathematically guaranteeing the lowest cost configuration.
 * **Dynamic Stress-Testing (Sensitivity Analysis):** Features real-time Demand Surge and Fixed Cost slider controls, allowing supply chain managers to simulate market fluctuations (e.g., holiday peaks) and instantly see how the optimal warehouse strategy shifts.
@@ -10,7 +10,7 @@ This repository contains a full-stack, enterprise-grade Decision Support System 
 * **Dual-Axis Break-Even Analysis:** A real-time `Chart.js` analytical graph plotting fixed versus transport cost trade-offs across 255 different network permutations.
 * **Branch & Bound Visualization:** An animated log panel that simulates the algorithmic exploration tree, demonstrating how sub-optimal supply chain branches are pruned based on lower bounds.
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 ### Backend
 * **Python 3.13** - Core logic
@@ -37,7 +37,7 @@ Z = Σ (Fixed_Cost_w * y_w) + Σ (Transport_Cost_zw * x_zw)
 3. **Binary Assignment:** `y_w ∈ {0, 1}` (Warehouse is either open or closed)
 4. **Non-Negativity:** `x_zw >= 0` (Flow cannot be negative)
 
-## 🚀 How to Run Locally
+##  How to Run Locally
 
 1. **Prerequisites:** Ensure you have Python installed on your machine.
 2. **Install Dependencies:**
@@ -53,7 +53,7 @@ Z = Σ (Fixed_Cost_w * y_w) + Σ (Transport_Cost_zw * x_zw)
    Open your web browser and navigate to:
    `http://127.0.0.1:5001`
 
-## 📁 Project Structure
+##  Project Structure
 
 * `app.py`: Flask application and API routing.
 * `solver.py`: The core algorithmic engine using PuLP to execute the transport simplex and Branch & Bound logic.
