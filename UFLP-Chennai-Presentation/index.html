@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chennai UFLP — Facility Location Optimization</title>
+  <meta name="description" content="Interactive Decision Support System for Uncapacitated Facility Location Problem (UFLP) with Branch & Bound visualization for Chennai logistics." />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- App CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- ═══════════════════════════════ HEADER ══════════════════════════════════ -->
+  <header class="site-header">
+    <div class="header-brand">
+      <div class="header-icon">🏭</div>
+      <div>
+        <h1 class="header-title">Chennai <span>UFLP</span> Dashboard</h1>
+        <div class="header-subtitle">Uncapacitated Facility Location · Branch &amp; Bound · Sensitivity Analysis</div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-blue">Operations Research</span>
+      <span class="badge badge-cyan">Integer Programming</span>
+      <span class="badge badge-green">Real-time Simulation</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════ TOP GRID ═══════════════════════════════ -->
+  <div class="top-grid">
+
+    <!-- ── Controls Sidebar ─────────────────────────────────────────────── -->
+    <aside>
+
+      <!-- Warehouse Selector -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-icon blue">🏭</div>
+          <div>
+            <div class="card-title">Warehouse Selection</div>
+            <div class="card-desc">Toggle facilities to simulate scenarios</div>
+          </div>
+        </div>
+
+        <div class="wh-options" id="wh-options-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <button id="btn-optimal" class="btn btn-green">
+          🏆 Show Optimal Solution
+        </button>
+        <button id="btn-compare" class="btn btn-outline" style="margin-top:8px">
+          📊 Jump to Case Table
+        </button>
+      </div>
+
+      <!-- KPI Panel -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-icon cyan">💰</div>
+          <div>
+            <div class="card-title">Cost Analysis</div>
+            <div class="card-desc">Real-time computation</div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-item">
+            <div class="kpi-label">Transport</div>
+            <div class="kpi-value cyan" id="kpi-transport">—</div>
+            <div class="kpi-unit">₹ units</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-label">Fixed</div>
+            <div class="kpi-value blue" id="kpi-fixed">—</div>
+            <div class="kpi-unit">₹ units</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-label">Total</div>
+            <div class="kpi-value green" id="kpi-total">—</div>
+            <div class="kpi-unit">₹ units</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone Assignments -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon purple">📍</div>
+          <div>
+            <div class="card-title">Zone Assignments</div>
+            <div class="card-desc">Zones → cheapest open warehouse</div>
+          </div>
+        </div>
+        <div class="kpi-assignments" id="assignments-list">
+          <p style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px">
+            Select warehouses to see assignments
+          </p>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── Map Panel ─────────────────────────────────────────────────────── -->
+    <div class="card" style="padding:14px">
+      <div class="card-header">
+        <div class="card-icon green">🗺️</div>
+        <div>
+          <div class="card-title">Chennai Geospatial Map</div>
+          <div class="card-desc">Warehouse markers (🏭) · Demand zones (📍) · Assignment routes (coloured lines)</div>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+
+  </div><!-- /top-grid -->
+
+  <!-- ══════════════════════════════ MID SECTION ════════════════════════════ -->
+  <div class="bottom-grid">
+
+    <!-- ── Sensitivity Analysis ──────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon amber">⚙️</div>
+        <div>
+          <div class="card-title">Sensitivity Analysis</div>
+          <div class="card-desc">Adjust fixed costs — see if optimal changes</div>
+        </div>
+      </div>
+
+      <div class="slider-group" id="slider-group-container">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="optimal-alert" id="sens-alert">
+        <span class="optimal-alert-icon">✅</span>
+        <div class="optimal-alert-text">
+          <div class="optimal-alert-title">Optimal solution loading…</div>
+          <div class="optimal-alert-sub">Adjust sliders to explore parameter sensitivity.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Why Optimal ────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🧠</div>
+        <div>
+          <div class="card-title">Why Optimal?</div>
+          <div class="card-desc">Logic-based decision explanation</div>
+        </div>
+      </div>
+      <div class="why-panel" id="why-panel">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div><!-- /bottom-grid -->
+
+  <!-- ══════════════════════════════ CHART ══════════════════════════════════ -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-icon blue">📈</div>
+      <div>
+        <div class="card-title">Cost Comparison — All 7 Enumeration Cases</div>
+        <div class="card-desc">Stacked: Transport (bottom) + Fixed (top) · Green = Optimal · Orange = Selected</div>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="cost-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ CASE TABLE ═════════════════════════════ -->
+  <div class="card" id="section-table" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-icon cyan">📊</div>
+      <div style="flex:1">
+        <div class="card-title">Full Enumeration Table</div>
+        <div class="card-desc">Click any row to simulate that case on the map</div>
+      </div>
+      <div style="display:flex;gap:8px">
+         <button id="btn-export-csv" class="btn btn-outline" style="margin:0;padding:6px 12px;font-size:11px">📥 CSV</button>
+         <button id="btn-export-pdf" class="btn btn-outline" style="margin:0;padding:6px 12px;font-size:11px">🖨️ Print</button>
+      </div>
+    </div>
+    <div class="case-table-wrap">
+      <table class="case-table" id="case-table">
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Warehouses Open</th>
+            <th>Transport ₹</th>
+            <th>Fixed ₹</th>
+            <th>Total ₹</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ B&B ANIMATION ══════════════════════════ -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-icon red">🎬</div>
+      <div>
+        <div class="card-title">Branch &amp; Bound Simulation</div>
+        <div class="card-desc">Watch the algorithm explore, bound, and prune — step by step</div>
+      </div>
+    </div>
+
+    <div class="bb-controls">
+      <button id="btn-bb-start" class="btn btn-primary" style="margin-top:0;flex:1">
+        ▶ Start B&amp;B
+      </button>
+      <button id="btn-bb-reset" class="btn btn-outline" style="margin-top:0;flex:0 0 auto;width:auto;padding:10px 16px">
+        ↺ Reset
+      </button>
+      <div class="bb-speed" style="flex:0 0 auto">
+        <label for="bb-speed">Speed:</label>
+        <select id="bb-speed">
+          <option value="1200">Slow</option>
+          <option value="700" selected>Medium</option>
+          <option value="350">Fast</option>
+          <option value="80">Turbo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bb-log" id="bb-log">
+      <span style="color:var(--text-muted)">Click ▶ Start B&amp;B to begin the animation…</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ FOOTER ═════════════════════════════════ -->
+  <footer style="text-align:center;padding:20px 0;color:var(--text-muted);font-size:12px;border-top:1px solid var(--border)">
+    <p>
+      <b style="color:var(--text-secondary)">Chennai UFLP Decision Support System</b> ·
+      Operations Research · Integer Programming · Branch &amp; Bound
+    </p>
+    <p style="margin-top:6px">
+      Built with Leaflet.js · Chart.js · Vanilla JS &amp; CSS
+    </p>
+  </footer>
+
+</div><!-- /app-wrapper -->
+
+<!-- ── Toast Notification ──────────────────────────────────────────────────── -->
+<div class="toast" id="toast" role="alert" aria-live="polite">
+  <span class="toast-icon">ℹ️</span>
+  <span class="toast-msg"></span>
+</div>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
